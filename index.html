@@ -1,62 +1,694 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <link rel="stylesheet" href="logic.css">
+  :root {
+    --bg: #0d0d0f;
+    --bg2: #141417;
+    --bg3: #1a1a1f;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0ede8;
+    --muted: #6b6872;
+    --dim: #3a3840;
+    --water: #4fa3e0;
+    --water-glow: rgba(79,163,224,0.18);
+    --water-light: #a8d4f5;
+    --exercise: #5ec97a;
+    --exercise-glow: rgba(94,201,122,0.18);
+    --exercise-light: #a8e8b8;
+    --reading: #e07a4f;
+    --reading-glow: rgba(224,122,79,0.18);
+    --reading-light: #f5c4a8;
+    --streak: #f5c842;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --radius-pill: 999px;
+  }
 
-    <!-- ICONS -->
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  html { font-size: 16px; }
+
+  body {
+    font-family: var(--font-body);
+    background: linear-gradient(180deg, #09131f 0%, #141821 45%, #191d26 100%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .app-title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .app-title .flame { color: var(--streak); font-size: 24px; }
+  .app-subtitle { font-size: 13px; color: var(--muted); margin-top: 4px; font-weight: 300; }
+  .date-chip {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    margin-top: 4px;
+  }
+
+  .streak-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 1.75rem;
+  }
+  .streak-chip {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 12px;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+  .streak-chip:hover { border-color: var(--border2); }
+  .streak-num {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .streak-chip.water .streak-num { color: var(--water); }
+  .streak-chip.exercise .streak-num { color: var(--exercise); }
+  .streak-chip.reading .streak-num { color: var(--reading); }
+  .streak-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .section.water-section::before { background: var(--water); }
+  .section.exercise-section::before { background: var(--exercise); }
+  .section.reading-section::before { background: var(--reading); }
+  .section.week-section::before { background: linear-gradient(90deg, var(--water), var(--exercise), var(--reading)); }
+  .section.active-section::before { opacity: 1; }
+
+  .section-head { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
+  .section-icon {
+    width: 38px; height: 38px;
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+    border: 1px solid transparent;
+  }
+  .section-icon.water  { background: var(--water-glow); color: var(--water); border-color: rgba(79,163,224,0.25); }
+  .section-icon.exercise { background: var(--exercise-glow); color: var(--exercise); border-color: rgba(94,201,122,0.25); }
+  .section-icon.reading { background: var(--reading-glow); color: var(--reading); border-color: rgba(224,122,79,0.25); }
+  .section-icon.week { background: var(--bg3); color: var(--muted); border-color: var(--border); }
+
+  .section-meta { flex: 1; }
+  .section-title-row { display: flex; align-items: center; gap: 8px; }
+  .section-title { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--text); }
+  .done-badge {
+    font-size: 10px; font-weight: 600;
+    padding: 2px 8px; border-radius: var(--radius-pill);
+    display: none; align-items: center; gap: 3px;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .done-badge.water { background: var(--water-glow); color: var(--water); border: 1px solid rgba(79,163,224,0.3); }
+  .done-badge.exercise { background: var(--exercise-glow); color: var(--exercise); border: 1px solid rgba(94,201,122,0.3); }
+  .done-badge.reading { background: var(--reading-glow); color: var(--reading); border: 1px solid rgba(224,122,79,0.3); }
+  .done-badge.show { display: inline-flex; }
+  .section-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .cups-grid { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 0.875rem; }
+  .cup {
+    width: 42px; height: 42px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.18s;
+    font-size: 17px; color: var(--dim);
+  }
+  .cup:hover { border-color: var(--water); color: var(--water-light); transform: translateY(-1px); }
+  .cup.filled { background: var(--water-glow); border-color: rgba(79,163,224,0.4); color: var(--water); }
+
+  .progress-track { height: 5px; background: var(--bg3); border-radius: var(--radius-pill); overflow: hidden; margin-bottom: 6px; }
+  .progress-fill { height: 100%; border-radius: var(--radius-pill); width: 0%; transition: width 0.35s cubic-bezier(.4,0,.2,1); }
+  .progress-fill.water { background: var(--water); }
+  .progress-fill.exercise { background: var(--exercise); }
+  .progress-fill.reading { background: var(--reading); }
+  .progress-label { font-size: 12px; color: var(--muted); }
+
+  .ex-list { display: flex; flex-direction: column; gap: 6px; }
+  .ex-row {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 12px; transition: border-color 0.2s;
+  }
+  .ex-row.done-row { border-color: rgba(94,201,122,0.3); background: rgba(94,201,122,0.04); }
+  .ex-icon { width: 28px; height: 28px; background: var(--bg2); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--muted); flex-shrink: 0; }
+  .ex-name { flex: 1; font-size: 14px; color: var(--text); }
+  .ex-controls { display: flex; align-items: center; gap: 6px; }
+  .ex-btn {
+    width: 26px; height: 26px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg2);
+    color: var(--text); font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; user-select: none;
+  }
+  .ex-btn:hover { border-color: var(--exercise); color: var(--exercise); }
+  .ex-val { font-size: 14px; font-weight: 500; min-width: 28px; text-align: center; color: var(--text); }
+  .ex-check {
+    width: 26px; height: 26px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 13px; color: var(--muted);
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .ex-check:hover { border-color: var(--exercise); color: var(--exercise); }
+  .ex-check.checked { background: var(--exercise-glow); border-color: rgba(94,201,122,0.4); color: var(--exercise); }
+
+  .slider-wrap { margin-bottom: 0.75rem; }
+  .slider-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .slider-label strong { color: var(--text); font-weight: 500; }
+  input[type=range] { width: 100%; -webkit-appearance: none; height: 4px; background: var(--bg3); border-radius: 99px; outline: none; cursor: pointer; }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--reading); border: 2px solid var(--bg);
+    box-shadow: 0 0 0 2px rgba(224,122,79,0.3); cursor: pointer; transition: box-shadow 0.2s;
+  }
+  input[type=range]:hover::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(224,122,79,0.2); }
+
+  .session-btn {
+    width: 100%; padding: 10px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: var(--bg3);
+    color: var(--muted); font-family: var(--font-body); font-size: 14px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 8px; transition: all 0.2s; margin-top: 10px;
+  }
+  .session-btn:hover { border-color: var(--reading); color: var(--reading); }
+  .session-btn.done { background: var(--reading-glow); border-color: rgba(224,122,79,0.4); color: var(--reading); }
+
+  .mood-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .mood-chip {
+    min-width: 110px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text);
+    font-size: 13px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, transform 0.2s;
+  }
+  .mood-chip:hover { border-color: var(--reading); color: var(--reading); transform: translateY(-1px); }
+  .mood-chip.active { border-color: var(--water); color: var(--water); }
+  .mood-suggestion { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .legend-dot.m { background: #b475f5; }
+  .week-dot.m { background: #b475f5; }
+
+  .week-legend { display: flex; gap: 14px; margin-bottom: 14px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .legend-dot.w { background: var(--water); }
+  .legend-dot.e { background: var(--exercise); }
+  .legend-dot.r { background: var(--reading); }
+
+  .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .week-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .week-day-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+  .week-dot { width: 100%; height: 7px; border-radius: 99px; background: var(--bg3); transition: background 0.2s; }
+  .week-dot.w { background: var(--water); }
+  .week-dot.e { background: var(--exercise); }
+  .week-dot.r { background: var(--reading); }
+  .week-col.today .week-day-label { color: var(--text); font-weight: 600; }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .section { animation: fadeSlideIn 0.4s ease both; }
+  .section:nth-child(1) { animation-delay: 0.05s; }
+  .section:nth-child(2) { animation-delay: 0.1s; }
+  .section:nth-child(3) { animation-delay: 0.15s; }
+  .section:nth-child(4) { animation-delay: 0.2s; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 99px; }
+
+  @media (max-width: 480px) {
+    .app { padding: 1.25rem 1rem 3rem; }
+    .app-title { font-size: 24px; }
+    .cup { width: 36px; height: 36px; }
+  }
+  /* ===========================
+   Animated Bubble Background
+=========================== */
+
+body{
+    overflow-x:hidden;
+}
+
+body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(79,163,224,0.15), transparent 30%),
+      radial-gradient(circle at 80% 30%, rgba(94,201,122,0.12), transparent 30%),
+      radial-gradient(circle at 50% 80%, rgba(224,122,79,0.12), transparent 30%);
+    animation: glowMove 12s ease-in-out infinite alternate;
+    z-index:-2;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background-image:
+      radial-gradient(circle, rgba(79,163,224,0.25) 2px, transparent 3px),
+      radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 2px),
+      radial-gradient(circle, rgba(79,163,224,0.15) 6px, transparent 7px);
+    background-size:120px 120px, 80px 80px, 200px 200px;
+    animation:bubbles 25s linear infinite;
+    z-index:-1;
+    pointer-events:none;
+}
+
+@keyframes bubbles{
+    from{
+        background-position:
+        0 100vh,
+        50px 100vh,
+        100px 100vh;
+    }
+    to{
+        background-position:
+        0 -100vh,
+        50px -100vh,
+        100px -100vh;
+    }
+}
+
+@keyframes glowMove{
+    0%{
+        transform:translate(0,0) scale(1);
+    }
+    50%{
+        transform:translate(-20px,20px) scale(1.1);
+    }
+    100%{
+        transform:translate(20px,-20px) scale(1.2);
+    }
+}
+
+.app{
+    position:relative;
+    z-index:1;
+}
+.section{
+    transition: all 0.3s ease;
+}
+
+.section.selected{
+    border: 2px solid #4fa3e0;
+    box-shadow: 0 0 25px rgba(79,163,224,0.5);
+    transform: translateY(-3px);
+}
+</style>
 </head>
 <body>
 
-    <div class="background"></div>
+<div class="app">
 
-    <div class="login-container">
-
-        <div class="left-section">
-            <h1>Welcome Back</h1>
-            <p>
-                Continue your journey with your secure account.
-            </p>
-
-                <img src="https://cdn-icons-png.flaticon.com/512/6997/6997662.png">
-        </div>
-
-        <div class="right-section">
-
-            <h2>Login</h2>
-
-            <div class="input-box">
-                <i class="fa-solid fa-envelope"></i>
-                <input type="email" id="email" placeholder="Enter Email">
-            </div>
-
-            <div class="input-box">
-                <i class="fa-solid fa-user"></i>
-                <input type="text" id="username" placeholder="Enter Username">
-            </div>
-
-            <div class="input-box">
-                <i class="fa-solid fa-lock"></i>
-                <input type="password" id="password" placeholder="Enter Password">
-            </div>
-
-            <button onclick="login()">Login</button>
-
-            <p class="register-text">
-                New here?
-                <a href="register.html">Create Account</a>
-            </p>
-
-        </div>
-
+  <div class="header">
+    <div class="header-left">
+      <div class="app-title">
+        <i class="ti ti-flame flame"></i>
+        Habit Builder
+      </div>
+      <div class="app-subtitle">Build consistency, one day at a time</div>
     </div>
+    <div class="date-chip" id="today-date"></div>
+  </div>
 
-    <script src="login.js"></script>
+  <div class="streak-row">
+    <div class="streak-chip water">
+      <div class="streak-num" id="water-streak">0</div>
+      <div class="streak-label"><i class="ti ti-droplet"></i> Water</div>
+    </div>
+    <div class="streak-chip exercise">
+      <div class="streak-num" id="ex-streak">0</div>
+      <div class="streak-label"><i class="ti ti-barbell"></i> Exercise</div>
+    </div>
+    <div class="streak-chip reading">
+      <div class="streak-num" id="read-streak">0</div>
+      <div class="streak-label"><i class="ti ti-book"></i> Reading</div>
+    </div>
+  </div>
 
+  <div class="section water-section" id="water-section">
+    <div class="section-head">
+      <div class="section-icon water"><i class="ti ti-droplet"></i></div>
+      <div class="section-meta">
+        <div class="section-title-row">
+          <span class="section-title">Water Intake</span>
+          <span class="done-badge water" id="water-badge"><i class="ti ti-check"></i> Done</span>
+        </div>
+        <div class="section-sub">Goal: 8 glasses per day</div>
+      </div>
+    </div>
+    <div class="cups-grid" id="cups-grid"></div>
+    <div class="progress-track"><div class="progress-fill water" id="water-fill"></div></div>
+    <div class="progress-label" id="water-prog">0 / 8 glasses</div>
+  </div>
+
+  <div class="section exercise-section" id="exercise-section">
+    <div class="section-head">
+      <div class="section-icon exercise"><i class="ti ti-barbell"></i></div>
+      <div class="section-meta">
+        <div class="section-title-row">
+          <span class="section-title">Exercise</span>
+          <span class="done-badge exercise" id="ex-badge"><i class="ti ti-check"></i> Done</span>
+        </div>
+        <div class="section-sub">Hit your daily targets</div>
+      </div>
+    </div>
+    <div class="ex-list" id="ex-list"></div>
+  </div>
+
+  <div class="section reading-section" id="reading-section">
+    <div class="section-head">
+      <div class="section-icon reading"><i class="ti ti-book"></i></div>
+      <div class="section-meta">
+        <div class="section-title-row">
+          <span class="section-title">Reading</span>
+          <span class="done-badge reading" id="read-badge"><i class="ti ti-check"></i> Done</span>
+        </div>
+        <div class="section-sub">Goal: 20 pages per day</div>
+      </div>
+    </div>
+    <div class="slider-wrap">
+      <div class="slider-label">
+        <span>Pages read today</span>
+        <strong id="pages-val">0 pages</strong>
+      </div>
+      <input type="range" min="0" max="60" step="1" value="0" id="pages-slider">
+    </div>
+    <div class="progress-track"><div class="progress-fill reading" id="reading-fill"></div></div>
+    <div class="progress-label" id="reading-prog" style="margin-bottom:0">0 / 20 pages</div>
+    <button class="session-btn" id="read-btn" onclick="toggleReading()">
+      <i class="ti ti-book-2"></i> Mark reading session complete
+    </button>
+  </div>
+
+  <div class="section mood-section" id="mood-section">
+    <div class="section-head">
+      <div class="section-icon week"><i class="ti ti-mood-smile"></i></div>
+      <div class="section-meta">
+        <div class="section-title-row">
+          <span class="section-title">Mood Booster</span>
+          <span class="done-badge reading" id="mood-badge"><i class="ti ti-check"></i> Completed</span>
+        </div>
+        <div class="section-sub">Select your mood and follow a small daily mini habit.</div>
+      </div>
+    </div>
+    <div class="mood-grid" id="mood-grid"></div>
+    <div class="mood-suggestion" id="mood-suggestion"></div>
+    <button class="session-btn" id="mood-btn" onclick="toggleMoodDone()">
+      <i class="ti ti-star"></i> Mark mood habit complete
+    </button>
+  </div>
+
+  <div class="section week-section">
+    <div class="section-head">
+      <div class="section-icon week"><i class="ti ti-calendar-week"></i></div>
+      <div class="section-meta">
+        <div class="section-title">This Week</div>
+        <div class="section-sub">Your consistency at a glance</div>
+      </div>
+    </div>
+    <div class="week-legend">
+      <div class="legend-item"><span class="legend-dot w"></span>Water</div>
+      <div class="legend-item"><span class="legend-dot e"></span>Exercise</div>
+      <div class="legend-item"><span class="legend-dot r"></span>Reading</div>
+      <div class="legend-item"><span class="legend-dot m"></span>Mood</div>
+    </div>
+    <div class="week-grid" id="week-grid"></div>
+  </div>
+
+</div>
+
+<script>
+  const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const today = new Date();
+  const todayIdx = today.getDay();
+
+  document.getElementById('today-date').textContent =
+    today.toLocaleDateString('en-IN', { weekday:'long', month:'short', day:'numeric' });
+
+  let state = (() => {
+    try { return JSON.parse(localStorage.getItem('hb2_state')); } catch(e) { return null; }
+  })() || {
+    cups: 0,
+    exercises: [
+      { name:'Push-ups', icon:'ti-arrow-up', reps:0, goal:20, done:false },
+      { name:'Squats',   icon:'ti-arrow-down', reps:0, goal:30, done:false },
+      { name:'Walk (min)', icon:'ti-walk', reps:0, goal:30, done:false }
+    ],
+    pages: 0,
+    readDone: false,
+    mood: 'neutral',
+    moodDone: false,
+    week: Array(7).fill(null).map(() => ({w:false,e:false,r:false,m:false}))
+  };
+
+  function save() {
+    try { localStorage.setItem('hb2_state', JSON.stringify(state)); } catch(e) {}
+  }
+
+  function renderWater() {
+    const g = document.getElementById('cups-grid');
+    g.innerHTML = '';
+    for (let i = 0; i < 8; i++) {
+      const c = document.createElement('div');
+      c.className = 'cup' + (i < state.cups ? ' filled' : '');
+      c.innerHTML = '<i class="ti ti-glass-full"></i>';
+      c.onclick = () => {
+        state.cups = (i < state.cups) ? i : i + 1;
+        save(); renderWater(); updateWeek();
+      };
+      g.appendChild(c);
+    }
+    document.getElementById('water-fill').style.width = Math.round((state.cups/8)*100) + '%';
+    document.getElementById('water-prog').textContent = state.cups + ' / 8 glasses';
+    document.getElementById('water-badge').classList.toggle('show', state.cups >= 8);
+    document.getElementById('water-section').classList.toggle('active-section', state.cups >= 8);
+  }
+
+  function renderEx() {
+    const list = document.getElementById('ex-list');
+    list.innerHTML = '';
+    state.exercises.forEach((ex, i) => {
+      const row = document.createElement('div');
+      row.className = 'ex-row' + (ex.done ? ' done-row' : '');
+      const pct = Math.min(100, Math.round((ex.reps / ex.goal) * 100));
+      row.innerHTML = `
+        <div class="ex-icon"><i class="ti ${ex.icon}"></i></div>
+        <div style="flex:1;min-width:0;">
+          <div class="ex-name">${ex.name}</div>
+          <div class="progress-track" style="margin-top:5px;height:3px;">
+            <div class="progress-fill exercise" style="width:${pct}%"></div>
+          </div>
+        </div>
+        <div class="ex-controls">
+          <button class="ex-btn" onclick="changeEx(${i},-5)">−</button>
+          <span class="ex-val">${ex.reps}</span>
+          <button class="ex-btn" onclick="changeEx(${i},5)">+</button>
+        </div>
+        <div class="ex-check ${ex.done ? 'checked' : ''}" onclick="toggleEx(${i})">
+          <i class="ti ti-check"></i>
+        </div>`;
+      list.appendChild(row);
+    });
+    const allDone = state.exercises.every(e => e.done);
+    document.getElementById('ex-badge').classList.toggle('show', allDone);
+    document.getElementById('exercise-section').classList.toggle('active-section', allDone);
+  }
+
+  function changeEx(i, d) { state.exercises[i].reps = Math.max(0, state.exercises[i].reps + d); save(); renderEx(); updateWeek(); }
+  function toggleEx(i) { state.exercises[i].done = !state.exercises[i].done; save(); renderEx(); updateWeek(); }
+
+  function renderReading() {
+    const p = state.pages;
+    document.getElementById('pages-val').textContent = p + ' pages';
+    document.getElementById('pages-slider').value = p;
+    document.getElementById('reading-fill').style.width = Math.min(100, Math.round((p/20)*100)) + '%';
+    document.getElementById('reading-prog').textContent = p + ' / 20 pages';
+    const btn = document.getElementById('read-btn');
+    if (state.readDone) {
+      btn.classList.add('done');
+      btn.innerHTML = '<i class="ti ti-check"></i> Session complete!';
+    } else {
+      btn.classList.remove('done');
+      btn.innerHTML = '<i class="ti ti-book-2"></i> Mark reading session complete';
+    }
+    const done = state.readDone && state.pages >= 20;
+    document.getElementById('read-badge').classList.toggle('show', done);
+    document.getElementById('reading-section').classList.toggle('active-section', done);
+  }
+
+  document.getElementById('pages-slider').oninput = function() {
+    state.pages = parseInt(this.value); save(); renderReading(); renderMood(); updateWeek();
+  };
+
+  function toggleReading() { state.readDone = !state.readDone; save(); renderReading(); updateWeek(); }
+
+  const moodSuggestions = {
+    neutral: 'How are you feeling today? Pick a small mood booster.',
+    calm: 'Write 3 things you’re grateful for in 2 minutes.',
+    tired: 'Take 3 deep breaths or do a 2-minute stretch.',
+    stressed: 'Pause for 1 minute of focused breathing.',
+    focused: 'Read one page, journal a quick win, or sit quietly.'
+  };
+
+  function renderMood() {
+    const moods = ['neutral','calm','tired','stressed','focused'];
+    const grid = document.getElementById('mood-grid');
+    grid.innerHTML = '';
+    moods.forEach(m => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'mood-chip' + (state.mood === m ? ' active' : '');
+      chip.textContent = m[0].toUpperCase() + m.slice(1);
+      chip.onclick = () => { state.mood = m; state.moodDone = false; save(); renderMood(); updateWeek(); };
+      grid.appendChild(chip);
+    });
+
+    document.getElementById('mood-suggestion').textContent = moodSuggestions[state.mood] || moodSuggestions.neutral;
+    const badge = document.getElementById('mood-badge');
+    badge.classList.toggle('show', state.moodDone);
+    document.getElementById('mood-btn').innerHTML = state.moodDone
+      ? '<i class="ti ti-check"></i> Mood habit completed'
+      : '<i class="ti ti-star"></i> Mark mood habit complete';
+  }
+
+  function toggleMoodDone() {
+    if (!state.mood || state.mood === 'neutral') {
+      state.mood = 'calm';
+    }
+    state.moodDone = !state.moodDone;
+    save(); renderMood(); updateWeek();
+  }
+
+  function updateWeek() {
+    state.week[todayIdx].w = state.cups >= 8;
+    state.week[todayIdx].e = state.exercises.every(e => e.done);
+    state.week[todayIdx].r = state.readDone && state.pages >= 20;
+    state.week[todayIdx].m = state.moodDone;
+    save(); renderWeek(); renderStreaks();
+  }
+
+  function renderWeek() {
+    const g = document.getElementById('week-grid');
+    g.innerHTML = '';
+    for (let i = 0; i < 7; i++) {
+      const col = document.createElement('div');
+      col.className = 'week-col' + (i === todayIdx ? ' today' : '');
+      col.style.opacity = (i === todayIdx || state.week[i].w || state.week[i].e || state.week[i].r || state.week[i].m) ? '1' : '0.35';
+      col.innerHTML = `
+        <div class="week-day-label">${DAYS[i][0]}</div>
+        <div class="week-dot ${state.week[i].w ? 'w' : ''}"></div>
+        <div class="week-dot ${state.week[i].e ? 'e' : ''}"></div>
+        <div class="week-dot ${state.week[i].r ? 'r' : ''}"></div>
+        <div class="week-dot ${state.week[i].m ? 'm' : ''}"></div>`;
+      g.appendChild(col);
+    }
+  }
+
+  function renderStreaks() {
+    function streak(key) {
+      let s = 0;
+      for (let i = todayIdx; i >= 0; i--) { if (state.week[i][key]) s++; else break; }
+      return s;
+    }
+    const ws = streak('w'), es = streak('e'), rs = streak('r');
+    document.getElementById('water-streak').textContent = ws + (ws >= 2 ? ' 🔥' : '');
+    document.getElementById('ex-streak').textContent    = es + (es >= 2 ? ' 🔥' : '');
+    document.getElementById('read-streak').textContent  = rs + (rs >= 2 ? ' 🔥' : '');
+  }
+
+  renderWater(); renderEx(); renderReading(); renderMood(); renderWeek(); renderStreaks();
+  document.querySelectorAll('.section').forEach(section => {
+    section.addEventListener('click', () => {
+
+        document.querySelectorAll('.section').forEach(s => {
+            s.classList.remove('selected');
+        });
+
+        section.classList.add('selected');
+    });
+});
+</script>
 </body>
 </html>
